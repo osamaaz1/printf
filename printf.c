@@ -1,66 +1,65 @@
-#include "main.h"
+#include "print_utils.h"
 
-void print_buffer(char buffer[], int *buff_ind);
+void print_output_buffer(char output_buffer[], int *output_buffer_index);
 
 /**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
+ * custom_printf - Custom printf function
+ * @format: Format string.
+ * Return: Number of printed characters.
  */
-int _printf(const char *format, ...)
+int custom_printf(const char *format, ...)
 {
-	int i, printed = 0, printed_chars = 0;
-	int flags, width, precision, size, buff_ind = 0;
-	va_list list;
-	char buffer[BUFF_SIZE];
+	int i, printed_count = 0, total_printed_chars = 0;
+	int format_flags = 0, format_width = 0, format_precision = 0;
+	int format_modifier = 0, output_buffer_index = 0;
+	va_list arguments_list;
+	char output_buffer[BUFFER_SIZE];
 
 	if (format == NULL)
 		return (-1);
-
-	va_start(list, format);
+	va_start(arguments_list, format);
 
 	for (i = 0; format && format[i] != '\0'; i++)
 	{
 		if (format[i] != '%')
 		{
-			buffer[buff_ind++] = format[i];
-			if (buff_ind == BUFF_SIZE)
-				print_buffer(buffer, &buff_ind);
-			/* write(1, &format[i], 1);*/
-			printed_chars++;
+			output_buffer[output_buffer_index++] = format[i];
+			if (output_buffer_index == BUFFER_SIZE)
+				print_output_buffer(output_buffer, &output_buffer_index);
+			printed_count++;
 		}
 		else
 		{
-			print_buffer(buffer, &buff_ind);
-			flags = get_flags(format, &i);
-			width = get_width(format, &i, list);
-			precision = get_precision(format, &i, list);
-			size = get_size(format, &i);
+			print_output_buffer(output_buffer, &output_buffer_index);
+			format_flags = get_format_flags(format, &i);
+			format_width = get_format_width(format, &i, arguments_list);
+			format_precision = get_format_precision(format, &i, arguments_list);
+			format_modifier = get_format_modifier(format, &i);
 			++i;
-			printed = handle_print(format, &i, list, buffer,
-				flags, width, precision, size);
-			if (printed == -1)
+			printed_count = handle_format(format, &i, arguments_list, output_buffer,
+				format_flags, format_width, format_precision, format_modifier);
+			if (printed_count == -1)
 				return (-1);
-			printed_chars += printed;
+			total_printed_chars += printed_count;
 		}
 	}
 
-	print_buffer(buffer, &buff_ind);
+	print_output_buffer(output_buffer, &output_buffer_index);
 
-	va_end(list);
+	va_end(arguments_list);
 
-	return (printed_chars);
+	return (total_printed_chars);
 }
 
 /**
- * print_buffer - Prints the contents of the buffer if it exist
- * @buffer: Array of chars
- * @buff_ind: Index at which to add next char, represents the length.
+ * print_output_buffer - Prints the contents of the output buffer if it exists
+ * @output_buffer: Array of characters to be printed
+ * @output_buffer_index: Index indicating the current length of the buffer
  */
-void print_buffer(char buffer[], int *buff_ind)
+void print_output_buffer(char output_buffer[], int *output_buffer_index)
 {
-	if (*buff_ind > 0)
-		write(1, &buffer[0], *buff_ind);
+	if (*output_buffer_index > 0)
+		write(1, &output_buffer[0], *output_buffer_index);
 
-	*buff_ind = 0;
+	*output_buffer_index = 0;
 }
