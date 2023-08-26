@@ -4,9 +4,9 @@
  * @format: identifier to look for.
  * Return: the length of the string.
  */
-int custom_printf(const char * const format, ...)
+int _printf(const char * const format, ...)
 {
-	convert_match conversions[] = {
+	convert_match m[] = {
 		{"%s", printf_string}, {"%c", printf_char},
 		{"%%", printf_37},
 		{"%i", printf_int}, {"%d", printf_dec}, {"%r", printf_srev},
@@ -16,7 +16,7 @@ int custom_printf(const char * const format, ...)
 	};
 
 	va_list args;
-	int i = 0, j, total_length = 0;
+	int i = 0, j, len = 0;
 
 	va_start(args, format);
 	if (format == NULL || (format[0] == '%' && format[1] == '\0'))
@@ -28,19 +28,18 @@ Here:
 		j = 13;
 		while (j >= 0)
 		{
-		if (conversions[j].id[0] == format[i] && conversions[j].id[1] == format[i + 1])
-		{
-			total_length += conversions[j].f(args);
-			i = i + 2;
-			goto Here;
-		}
-		j--;
+			if (m[j].id[0] == format[i] && m[j].id[1] == format[i + 1])
+			{
+				len += m[j].f(args);
+				i = i + 2;
+				goto Here;
+			}
+			j--;
 		}
 		_putchar(format[i]);
-		total_length++;
+		len++;
 		i++;
 	}
 	va_end(args);
-	return (total_length);
+	return (len);
 }
-
